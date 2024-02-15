@@ -7,8 +7,9 @@ import java.nio.file.*;
 public class FileMonitor {
     private static MyWebSocketServer server;
     private static String logFilePath = "C:\\json.js";
+    private static String previousLogContent = null;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         // Start WebSocket server
         server = new MyWebSocketServer(new InetSocketAddress(8080));
         server.start();
@@ -22,6 +23,7 @@ public class FileMonitor {
 
         // Your file monitoring code
         while (true) {
+            Thread.sleep(1000);
             WatchKey key;
             try {
                 key = watchService.take(); // Wait for a file modification event
@@ -30,6 +32,7 @@ public class FileMonitor {
                 return;
             }
 
+            // Process only the latest modification event
             for (WatchEvent<?> event : key.pollEvents()) {
                 WatchEvent.Kind<?> kind = event.kind();
                 if (kind == StandardWatchEventKinds.OVERFLOW) {
@@ -40,13 +43,15 @@ public class FileMonitor {
                 Path modifiedFile = (Path) event.context();
                 if (modifiedFile.equals(logPath.getFileName())) {
                     System.out.println("Log file modified: " + modifiedFile);
-                    String logContent = readLogFile();
-                    if (logContent != null) {
-                        server.broadcast(logContent);
-                    } else {
-                        System.err.println("Failed to read log file content");
-                    }
                 }
+            }
+
+            String currentLogContent = readLogFile();
+            if (currentLogContent != null && !currentLogContent.equals(previousLogContent)) {
+                server.broadcast(currentLogContent);
+                previousLogContent = currentLogContent;
+            } else {
+                System.out.println("No change in log file content. Skipping broadcast.");
             }
 
             // Reset the key
@@ -58,7 +63,7 @@ public class FileMonitor {
     }
 
     // Read the contents of the log file
-    private static String readLogFile() {
+    protected static String readLogFile() {
         StringBuilder content = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(logFilePath))) {
             String line;

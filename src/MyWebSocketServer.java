@@ -1,10 +1,8 @@
-// MyWebSocketServer.java
 import org.java_websocket.server.WebSocketServer;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import java.net.InetSocketAddress;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class MyWebSocketServer extends WebSocketServer {
     private Set<WebSocket> connections;
@@ -29,6 +27,14 @@ public class MyWebSocketServer extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         System.out.println("Message received from " + conn.getRemoteSocketAddress() + ": " + message);
+        String fileContent = FileMonitor.readLogFile();
+        String[] lines = fileContent.split("\\r?\\n");
+        List<String> result = new ArrayList<>();
+        for (String line : lines) {
+            if (line.contains(message))
+                result.add(line);
+        }
+        broadcast(result.toString());
     }
 
     @Override
@@ -47,4 +53,5 @@ public class MyWebSocketServer extends WebSocketServer {
             client.send(message);
         }
     }
+
 }
