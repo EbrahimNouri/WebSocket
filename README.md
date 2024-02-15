@@ -1,9 +1,7 @@
-# WebSocket
+########################################################
+# WebSocket File Monitor and Broadcaster              #
+########################################################
 Real-time file monitoring and broadcasting system using WebSocket technology in Java.
-
-# Real-time File Monitor and Broadcaster
-
-This project is a Java application that monitors changes to a specific file and broadcasts those changes in real-time using WebSocket technology.
 
 ## Features
 
@@ -15,8 +13,8 @@ This project is a Java application that monitors changes to a specific file and 
 ## Usage
 
 1. Clone or download the repository.
-2. Compile the Java source files (`FileMonitor.java` and `MyWebSocketServer.java`).
-3. Run the compiled `FileMonitor` class to start the WebSocket server and file monitoring.
+2. Compile the Java source file (`MyWebSocketServer.java`).
+3. Run the compiled `MyWebSocketServer` class to start the WebSocket server and file monitoring.
 
 ## Dependencies
 
@@ -27,12 +25,12 @@ This project is a Java application that monitors changes to a specific file and 
 To get started with this project:
 
 1. Clone the repository: `git clone https://github.com/your-username/real-time-file-monitor.git`
-2. Compile the Java source files: `javac FileMonitor.java MyWebSocketServer.java`
-3. Run the compiled `FileMonitor` class: `java FileMonitor`
+2. Compile the Java source file: `javac MyWebSocketServer.java`
+3. Run the compiled `MyWebSocketServer` class: `java MyWebSocketServer`
 
 ## Configuration
 
-You can configure the file to be monitored by modifying the `logFilePath` variable in the `FileMonitor.java` file.
+You can configure the file to be monitored by modifying the `logFilePath` variable in the `MyWebSocketServer.java` file.
 
 ## License
 
