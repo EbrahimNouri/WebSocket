@@ -1,29 +1,32 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.file.*;
 
 public class FileMonitor {
     private static MyWebSocketServer server;
-    private static String logFilePath = "C:\\Users\\ebrahim nouri\\Desktop\\json.js"; // Specify the path to your log file
+    private static String logFilePath = "C:\\json.js";
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         // Start WebSocket server
-        server = new MyWebSocketServer(8080);
+        server = new MyWebSocketServer(new InetSocketAddress(8080));
         server.start();
+        System.out.println("WebSocket server started on port 8080");
 
         // Monitor the log file for changes
         Path logPath = Paths.get(logFilePath);
         WatchService watchService = FileSystems.getDefault().newWatchService();
         logPath.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+        System.out.println("File monitoring started");
 
         // Your file monitoring code
         while (true) {
-            Thread.sleep(10000);
             WatchKey key;
             try {
                 key = watchService.take(); // Wait for a file modification event
             } catch (InterruptedException e) {
+                e.printStackTrace();
                 return;
             }
 
@@ -37,7 +40,12 @@ public class FileMonitor {
                 Path modifiedFile = (Path) event.context();
                 if (modifiedFile.equals(logPath.getFileName())) {
                     System.out.println("Log file modified: " + modifiedFile);
-                    broadcast(readLogFile());
+                    String logContent = readLogFile();
+                    if (logContent != null) {
+                        server.broadcast(logContent);
+                    } else {
+                        System.err.println("Failed to read log file content");
+                    }
                 }
             }
 
@@ -57,14 +65,10 @@ public class FileMonitor {
             while ((line = reader.readLine()) != null) {
                 content.append(line).append("\n");
             }
+            return content.toString();
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        return content.toString();
-    }
-
-    // Call this method when you want to broadcast a message to all WebSocket clients
-    private static void broadcast(String message) {
-        server.broadcast(message);
     }
 }
